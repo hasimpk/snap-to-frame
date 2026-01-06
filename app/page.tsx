@@ -23,7 +23,7 @@ export default function Page() {
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold mb-1">SnapToFrame</h1>
+              <h1 className="text-lg font-bold">SnapToFrame</h1>
               <p className="text-muted-foreground text-xs">
                 Frame your images with custom sizes. All processing happens
                 locally in your browser.
