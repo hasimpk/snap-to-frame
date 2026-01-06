@@ -12,6 +12,7 @@ interface FrameConfig {
   fit: 'contain' | 'cover'
   borderRadius: number
   shadow: boolean
+  shadowSpread: number
   format: 'png' | 'jpg'
 }
 
@@ -43,7 +44,7 @@ async function applyFrameInWorker(
     throw new Error('Failed to get 2D context from OffscreenCanvas')
   }
 
-  // Fill background
+  // Fill background first (no border radius on background)
   ctx.fillStyle = config.background
   ctx.fillRect(0, 0, config.width, config.height)
 
@@ -94,33 +95,156 @@ async function applyFrameInWorker(
     drawY = imageAreaY + (imageAreaHeight - drawHeight) / 2
   }
 
-  // Apply shadow if enabled
-  if (config.shadow) {
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)'
-    ctx.shadowBlur = 20
-    ctx.shadowOffsetX = 0
-    ctx.shadowOffsetY = 4
-  }
-
-  // Apply border radius using clipping path
+  // Apply border radius to image only
   if (config.borderRadius > 0) {
     ctx.save()
     const radius = Math.min(
       config.borderRadius,
-      config.width / 2,
-      config.height / 2
+      drawWidth / 2,
+      drawHeight / 2
     )
+    
+    // Create clipping path for the actual image bounds (not the full image area)
     ctx.beginPath()
-    ctx.roundRect(0, 0, config.width, config.height, radius)
+    // Top-left corner
+    ctx.moveTo(drawX + radius, drawY)
+    // Top edge
+    ctx.lineTo(drawX + drawWidth - radius, drawY)
+    // Top-right corner
+    ctx.arc(
+      drawX + drawWidth - radius,
+      drawY + radius,
+      radius,
+      -Math.PI / 2,
+      0,
+      false
+    )
+    // Right edge
+    ctx.lineTo(drawX + drawWidth, drawY + drawHeight - radius)
+    // Bottom-right corner
+    ctx.arc(
+      drawX + drawWidth - radius,
+      drawY + drawHeight - radius,
+      radius,
+      0,
+      Math.PI / 2,
+      false
+    )
+    // Bottom edge
+    ctx.lineTo(drawX + radius, drawY + drawHeight)
+    // Bottom-left corner
+    ctx.arc(
+      drawX + radius,
+      drawY + drawHeight - radius,
+      radius,
+      Math.PI / 2,
+      Math.PI,
+      false
+    )
+    // Left edge
+    ctx.lineTo(drawX, drawY + radius)
+    // Top-left corner
+    ctx.arc(
+      drawX + radius,
+      drawY + radius,
+      radius,
+      Math.PI,
+      -Math.PI / 2,
+      false
+    )
+    ctx.closePath()
     ctx.clip()
   }
 
-  // Draw the image
-  ctx.drawImage(sourceCanvas, drawX, drawY, drawWidth, drawHeight)
+  // Helper function to create rounded rectangle path
+  const createRoundedRectPath = (
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    radius: number
+  ) => {
+    ctx.beginPath()
+    // Top-left corner
+    ctx.moveTo(x + radius, y)
+    // Top edge
+    ctx.lineTo(x + width - radius, y)
+    // Top-right corner
+    ctx.arc(x + width - radius, y + radius, radius, -Math.PI / 2, 0, false)
+    // Right edge
+    ctx.lineTo(x + width, y + height - radius)
+    // Bottom-right corner
+    ctx.arc(
+      x + width - radius,
+      y + height - radius,
+      radius,
+      0,
+      Math.PI / 2,
+      false
+    )
+    // Bottom edge
+    ctx.lineTo(x + radius, y + height)
+    // Bottom-left corner
+    ctx.arc(x + radius, y + height - radius, radius, Math.PI / 2, Math.PI, false)
+    // Left edge
+    ctx.lineTo(x, y + radius)
+    // Top-left corner
+    ctx.arc(x + radius, y + radius, radius, Math.PI, -Math.PI / 2, false)
+    ctx.closePath()
+  }
 
-  // Restore context if we clipped
-  if (config.borderRadius > 0) {
+  const radius = config.borderRadius > 0
+    ? Math.min(config.borderRadius, drawWidth / 2, drawHeight / 2)
+    : 0
+
+  // Draw shadow first using a shape that matches the image bounds
+  if (config.shadow) {
+    ctx.save()
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)'
+    ctx.shadowBlur = config.shadowSpread
+    ctx.shadowOffsetX = 0
+    ctx.shadowOffsetY = Math.max(2, config.shadowSpread / 5)
+
+    if (radius > 0) {
+      // Draw shadow using rounded rectangle path that matches image shape
+      createRoundedRectPath(drawX, drawY, drawWidth, drawHeight, radius)
+      // Use a visible fill to cast shadow, but we'll composite it behind
+      ctx.fillStyle = '#000000'
+      ctx.fill()
+    } else {
+      // Draw shadow using rectangle
+      ctx.fillStyle = '#000000'
+      ctx.fillRect(drawX, drawY, drawWidth, drawHeight)
+    }
     ctx.restore()
+    
+    // Now draw image on top using source-over (default), hiding the black shape but keeping shadow
+    ctx.save()
+    
+    // Apply border radius clipping to image only
+    if (radius > 0) {
+      createRoundedRectPath(drawX, drawY, drawWidth, drawHeight, radius)
+      ctx.clip()
+    }
+    
+    // Draw the image on top (this will hide the black shape but shadow remains visible)
+    ctx.drawImage(sourceCanvas, drawX, drawY, drawWidth, drawHeight)
+    ctx.restore()
+  } else {
+    // No shadow - just apply border radius clipping if needed
+    if (radius > 0) {
+      ctx.save()
+      createRoundedRectPath(drawX, drawY, drawWidth, drawHeight, radius)
+      ctx.clip()
+    }
+
+    // Draw the image (clipped to rounded rectangle if borderRadius > 0)
+    ctx.drawImage(sourceCanvas, drawX, drawY, drawWidth, drawHeight)
+
+    // Restore context if we clipped (removes clipping path)
+    if (radius > 0) {
+      ctx.restore()
+    }
   }
 
   // Export as blob

@@ -221,7 +221,7 @@ export function FrameControls({
                 max="50"
                 value={config.borderRadius}
                 onChange={(e) =>
-                  updateConfig({ borderRadius: parseInt(e.target.value) })
+                  updateConfig({ borderRadius: parseInt(e.target.value) || 0 })
                 }
                 disabled={disabled}
                 className="w-full"
@@ -230,9 +230,8 @@ export function FrameControls({
           </Field>
 
           {/* Shadow */}
-          <Field orientation="horizontal">
-            <FieldLabel htmlFor="shadow">Shadow</FieldLabel>
-            <FieldContent>
+          <Field>
+            <FieldLabel htmlFor="shadow" className="flex items-center gap-2">
               <input
                 id="shadow"
                 type="checkbox"
@@ -241,7 +240,26 @@ export function FrameControls({
                 disabled={disabled}
                 className="h-4 w-4 rounded border-input accent-primary"
               />
-            </FieldContent>
+              <span>Shadow</span>
+            </FieldLabel>
+            {config.shadow && (
+              <FieldContent className="mt-2">
+                <FieldLabel>
+                  Shadow Spread: {config.shadowSpread}px
+                </FieldLabel>
+                <Input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={config.shadowSpread}
+                  onChange={(e) =>
+                    updateConfig({ shadowSpread: parseInt(e.target.value) || 0 })
+                  }
+                  disabled={disabled}
+                  className="w-full"
+                />
+              </FieldContent>
+            )}
           </Field>
 
           {/* Format */}

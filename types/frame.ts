@@ -10,6 +10,7 @@ export interface FrameConfig {
   fit: FitMode
   borderRadius: number
   shadow: boolean
+  shadowSpread: number
   format: ExportFormat
 }
 
@@ -33,5 +34,6 @@ export const DEFAULT_FRAME_CONFIG: FrameConfig = {
   fit: 'contain',
   borderRadius: 0,
   shadow: false,
+  shadowSpread: 20,
   format: 'png',
 }
