@@ -2,6 +2,8 @@ export type FitMode = 'contain' | 'cover'
 
 export type ExportFormat = 'png' | 'jpg'
 
+export type BorderStyle = 'solid' | 'dashed' | 'dotted'
+
 export interface FrameConfig {
   width: number
   height: number
@@ -11,6 +13,10 @@ export interface FrameConfig {
   borderRadius: number
   shadow: boolean
   shadowSpread: number
+  border: boolean
+  borderColor: string
+  borderWidth: number
+  borderStyle: BorderStyle
   format: ExportFormat
 }
 
@@ -35,5 +41,9 @@ export const DEFAULT_FRAME_CONFIG: FrameConfig = {
   borderRadius: 0,
   shadow: false,
   shadowSpread: 20,
+  border: false,
+  borderColor: '#000000',
+  borderWidth: 2,
+  borderStyle: 'solid',
   format: 'png',
 }

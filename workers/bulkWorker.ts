@@ -13,6 +13,10 @@ interface FrameConfig {
   borderRadius: number
   shadow: boolean
   shadowSpread: number
+  border: boolean
+  borderColor: string
+  borderWidth: number
+  borderStyle: 'solid' | 'dashed' | 'dotted'
   format: 'png' | 'jpg'
 }
 
@@ -245,6 +249,35 @@ async function applyFrameInWorker(
     if (radius > 0) {
       ctx.restore()
     }
+  }
+
+  // Draw border if enabled
+  if (config.border && config.borderWidth > 0) {
+    ctx.save()
+    
+    // Set border style
+    ctx.strokeStyle = config.borderColor
+    ctx.lineWidth = config.borderWidth
+    
+    // Apply border style
+    if (config.borderStyle === 'dashed') {
+      ctx.setLineDash([8, 4])
+    } else if (config.borderStyle === 'dotted') {
+      ctx.setLineDash([2, 4])
+    } else {
+      ctx.setLineDash([])
+    }
+    
+    // Draw border path matching the image bounds
+    if (radius > 0) {
+      createRoundedRectPath(drawX, drawY, drawWidth, drawHeight, radius)
+    } else {
+      ctx.beginPath()
+      ctx.rect(drawX, drawY, drawWidth, drawHeight)
+    }
+    ctx.stroke()
+    
+    ctx.restore()
   }
 
   // Export as blob

@@ -19,7 +19,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import type { FrameConfig, FitMode, ExportFormat } from "@/types/frame";
+import type {
+  FrameConfig,
+  FitMode,
+  ExportFormat,
+  BorderStyle,
+} from "@/types/frame";
 import { FRAME_PRESETS } from "@/types/frame";
 import { cn } from "@/lib/utils";
 
@@ -267,6 +272,87 @@ export function FrameControls({
                 />
               </FieldContent>
             </Field>
+          )}
+
+          {/* Border */}
+          <Field orientation="horizontal">
+            <FieldContent className="flex-none">
+              <Switch
+                id="border"
+                checked={config.border}
+                onCheckedChange={(checked) => updateConfig({ border: checked })}
+                disabled={disabled}
+              />
+            </FieldContent>
+            <FieldLabel htmlFor="border">Border</FieldLabel>
+          </Field>
+          {config.border && (
+            <>
+              <Field>
+                <FieldLabel>Border Width: {config.borderWidth}px</FieldLabel>
+                <FieldContent>
+                  <Slider
+                    min={1}
+                    max={20}
+                    value={[config.borderWidth]}
+                    onValueChange={(value) =>
+                      updateConfig({ borderWidth: value[0] })
+                    }
+                    disabled={disabled}
+                    className="w-full"
+                  />
+                </FieldContent>
+              </Field>
+              <div className="grid grid-cols-2 gap-4">
+                <Field>
+                  <FieldLabel>Border Style</FieldLabel>
+                  <FieldContent>
+                    <Select
+                      value={config.borderStyle}
+                      onValueChange={(value) =>
+                        updateConfig({ borderStyle: value as BorderStyle })
+                      }
+                      disabled={disabled}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="solid">Solid</SelectItem>
+                        <SelectItem value="dashed">Dashed</SelectItem>
+                        <SelectItem value="dotted">Dotted</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FieldContent>
+                </Field>
+                <Field>
+                  <FieldLabel>Border Color</FieldLabel>
+                  <FieldContent>
+                    <div className="flex gap-2">
+                      <Input
+                        type="color"
+                        value={config.borderColor}
+                        onChange={(e) =>
+                          updateConfig({ borderColor: e.target.value })
+                        }
+                        disabled={disabled}
+                        className="h-9 w-20 cursor-pointer"
+                      />
+                      <Input
+                        type="text"
+                        value={config.borderColor}
+                        onChange={(e) =>
+                          updateConfig({ borderColor: e.target.value })
+                        }
+                        disabled={disabled}
+                        placeholder="#000000"
+                        pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
+                      />
+                    </div>
+                  </FieldContent>
+                </Field>
+              </div>
+            </>
           )}
 
           {/* Format */}
