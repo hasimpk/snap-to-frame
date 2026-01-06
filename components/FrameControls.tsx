@@ -1,26 +1,33 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Field, FieldGroup, FieldLabel, FieldContent } from '@/components/ui/field'
-import { Input } from '@/components/ui/input'
+import * as React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Field,
+  FieldGroup,
+  FieldLabel,
+  FieldContent,
+} from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { Label } from '@/components/ui/label'
-import type { FrameConfig, FitMode, ExportFormat } from '@/types/frame'
-import { FRAME_PRESETS } from '@/types/frame'
-import { cn } from '@/lib/utils'
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import type { FrameConfig, FitMode, ExportFormat } from "@/types/frame";
+import { FRAME_PRESETS } from "@/types/frame";
+import { cn } from "@/lib/utils";
 
 export interface FrameControlsProps {
-  config: FrameConfig
-  onConfigChange: (config: FrameConfig) => void
-  disabled?: boolean
-  className?: string
+  config: FrameConfig;
+  onConfigChange: (config: FrameConfig) => void;
+  disabled?: boolean;
+  className?: string;
 }
 
 export function FrameControls({
@@ -29,45 +36,45 @@ export function FrameControls({
   disabled = false,
   className,
 }: FrameControlsProps) {
-  const [preset, setPreset] = React.useState<string>('Square')
-  const [isCustom, setIsCustom] = React.useState(false)
+  const [preset, setPreset] = React.useState<string>("Square");
+  const [isCustom, setIsCustom] = React.useState(false);
 
   const updateConfig = (updates: Partial<FrameConfig>) => {
-    onConfigChange({ ...config, ...updates })
-  }
+    onConfigChange({ ...config, ...updates });
+  };
 
   const handlePresetChange = (value: string) => {
-    if (value === 'Custom') {
-      setIsCustom(true)
-      return
+    if (value === "Custom") {
+      setIsCustom(true);
+      return;
     }
 
-    setIsCustom(false)
-    setPreset(value)
-    const selectedPreset = FRAME_PRESETS.find((p) => p.name === value)
+    setIsCustom(false);
+    setPreset(value);
+    const selectedPreset = FRAME_PRESETS.find((p) => p.name === value);
     if (selectedPreset) {
       updateConfig({
         width: selectedPreset.width,
         height: selectedPreset.height,
-      })
+      });
     }
-  }
+  };
 
   // Sync preset when dimensions change externally
   React.useEffect(() => {
     const matchingPreset = FRAME_PRESETS.find(
       (p) => p.width === config.width && p.height === config.height
-    )
+    );
     if (matchingPreset) {
-      setPreset(matchingPreset.name)
-      setIsCustom(false)
+      setPreset(matchingPreset.name);
+      setIsCustom(false);
     } else {
-      setIsCustom(true)
+      setIsCustom(true);
     }
-  }, [config.width, config.height])
+  }, [config.width, config.height]);
 
   return (
-    <Card className={cn('w-full', className)}>
+    <Card className={cn("w-full", className)}>
       <CardHeader>
         <CardTitle>Frame Settings</CardTitle>
       </CardHeader>
@@ -78,7 +85,7 @@ export function FrameControls({
             <FieldLabel>Frame Size</FieldLabel>
             <FieldContent>
               <Select
-                value={isCustom ? 'Custom' : preset}
+                value={isCustom ? "Custom" : preset}
                 onValueChange={handlePresetChange}
                 disabled={disabled}
               >
@@ -97,7 +104,10 @@ export function FrameControls({
               {isCustom && (
                 <div className="mt-2 grid grid-cols-2 gap-2">
                   <div>
-                    <Label htmlFor="width" className="text-xs text-muted-foreground">
+                    <Label
+                      htmlFor="width"
+                      className="text-xs text-muted-foreground"
+                    >
                       Width
                     </Label>
                     <Input
@@ -114,7 +124,10 @@ export function FrameControls({
                     />
                   </div>
                   <div>
-                    <Label htmlFor="height" className="text-xs text-muted-foreground">
+                    <Label
+                      htmlFor="height"
+                      className="text-xs text-muted-foreground"
+                    >
                       Height
                     </Label>
                     <Input
@@ -158,9 +171,9 @@ export function FrameControls({
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground mt-1">
-                {config.fit === 'contain'
-                  ? 'Image fits within frame'
-                  : 'Image covers entire frame'}
+                {config.fit === "contain"
+                  ? "Image fits within frame"
+                  : "Image covers entire frame"}
               </p>
             </FieldContent>
           </Field>
@@ -191,18 +204,13 @@ export function FrameControls({
 
           {/* Padding */}
           <Field>
-            <FieldLabel>
-              Padding: {config.padding}px
-            </FieldLabel>
+            <FieldLabel>Padding: {config.padding}px</FieldLabel>
             <FieldContent>
-              <Input
-                type="range"
-                min="0"
-                max="100"
-                value={config.padding}
-                onChange={(e) =>
-                  updateConfig({ padding: parseInt(e.target.value) })
-                }
+              <Slider
+                min={0}
+                max={100}
+                value={[config.padding]}
+                onValueChange={(value) => updateConfig({ padding: value[0] })}
                 disabled={disabled}
                 className="w-full"
               />
@@ -211,17 +219,14 @@ export function FrameControls({
 
           {/* Border Radius */}
           <Field>
-            <FieldLabel>
-              Border Radius: {config.borderRadius}px
-            </FieldLabel>
+            <FieldLabel>Border Radius: {config.borderRadius}px</FieldLabel>
             <FieldContent>
-              <Input
-                type="range"
-                min="0"
-                max="50"
-                value={config.borderRadius}
-                onChange={(e) =>
-                  updateConfig({ borderRadius: parseInt(e.target.value) || 0 })
+              <Slider
+                min={0}
+                max={50}
+                value={[config.borderRadius]}
+                onValueChange={(value) =>
+                  updateConfig({ borderRadius: value[0] })
                 }
                 disabled={disabled}
                 className="w-full"
@@ -230,37 +235,34 @@ export function FrameControls({
           </Field>
 
           {/* Shadow */}
-          <Field>
-            <FieldLabel htmlFor="shadow" className="flex items-center gap-2">
-              <input
+          <Field orientation="horizontal">
+            <FieldContent className="flex-none">
+              <Switch
                 id="shadow"
-                type="checkbox"
                 checked={config.shadow}
-                onChange={(e) => updateConfig({ shadow: e.target.checked })}
+                onCheckedChange={(checked) => updateConfig({ shadow: checked })}
                 disabled={disabled}
-                className="h-4 w-4 rounded border-input accent-primary"
               />
-              <span>Shadow</span>
-            </FieldLabel>
-            {config.shadow && (
-              <FieldContent className="mt-2">
-                <FieldLabel>
-                  Shadow Spread: {config.shadowSpread}px
-                </FieldLabel>
-                <Input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={config.shadowSpread}
-                  onChange={(e) =>
-                    updateConfig({ shadowSpread: parseInt(e.target.value) || 0 })
+            </FieldContent>
+            <FieldLabel htmlFor="shadow">Shadow</FieldLabel>
+          </Field>
+          {config.shadow && (
+            <Field>
+              <FieldLabel>Shadow Spread: {config.shadowSpread}px</FieldLabel>
+              <FieldContent>
+                <Slider
+                  min={0}
+                  max={100}
+                  value={[config.shadowSpread]}
+                  onValueChange={(value) =>
+                    updateConfig({ shadowSpread: value[0] })
                   }
                   disabled={disabled}
                   className="w-full"
                 />
               </FieldContent>
-            )}
-          </Field>
+            </Field>
+          )}
 
           {/* Format */}
           <Field>
@@ -286,5 +288,5 @@ export function FrameControls({
         </FieldGroup>
       </CardContent>
     </Card>
-  )
+  );
 }
