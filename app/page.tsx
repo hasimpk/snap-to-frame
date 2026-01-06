@@ -5,6 +5,7 @@ import { ImageUploader } from '@/components/ImageUploader'
 import { PreviewCanvas } from '@/components/PreviewCanvas'
 import { FrameControls } from '@/components/FrameControls'
 import { ExportBar } from '@/components/ExportBar'
+import { ThemeToggle } from '@/components/ThemeToggle'
 import { DEFAULT_FRAME_CONFIG } from '@/types/frame'
 import type { FrameConfig } from '@/types/frame'
 
@@ -20,12 +21,17 @@ export default function Page() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b border-border bg-card">
-        <div className="container mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold mb-2">SnapToFrame</h1>
-          <p className="text-muted-foreground text-sm">
-            Frame your images with custom sizes. All processing happens locally
-            in your browser.
-          </p>
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold mb-1">SnapToFrame</h1>
+              <p className="text-muted-foreground text-xs">
+                Frame your images with custom sizes. All processing happens locally
+                in your browser.
+              </p>
+            </div>
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
