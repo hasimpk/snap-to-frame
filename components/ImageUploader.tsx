@@ -1,15 +1,15 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { UploadIcon, XIcon, ImageIcon } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import * as React from "react";
+import { UploadIcon, XIcon, ImageIcon } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export interface ImageUploaderProps {
-  files: File[]
-  onFilesChange: (files: File[]) => void
-  className?: string
+  files: File[];
+  onFilesChange: (files: File[]) => void;
+  className?: string;
 }
 
 export function ImageUploader({
@@ -17,89 +17,94 @@ export function ImageUploader({
   onFilesChange,
   className,
 }: ImageUploaderProps) {
-  const [isDragging, setIsDragging] = React.useState(false)
+  const [isDragging, setIsDragging] = React.useState(false);
   const [previewUrls, setPreviewUrls] = React.useState<Map<string, string>>(
     new Map()
-  )
-  const fileInputRef = React.useRef<HTMLInputElement>(null)
+  );
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   // Generate preview URLs for files
   React.useEffect(() => {
-    const newUrls = new Map<string, string>()
+    const newUrls = new Map<string, string>();
     files.forEach((file) => {
-      const url = URL.createObjectURL(file)
-      newUrls.set(file.name, url)
-    })
+      const url = URL.createObjectURL(file);
+      newUrls.set(file.name, url);
+    });
 
-    setPreviewUrls(newUrls)
+    setPreviewUrls(newUrls);
 
     // Cleanup: revoke URLs when files change or component unmounts
     return () => {
-      newUrls.forEach((url) => URL.revokeObjectURL(url))
-    }
-  }, [files])
+      newUrls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, [files]);
 
   const handleFiles = (fileList: FileList | null) => {
-    if (!fileList) return
+    if (!fileList) return;
 
     const imageFiles = Array.from(fileList).filter((file) =>
-      file.type.startsWith('image/')
-    )
+      file.type.startsWith("image/")
+    );
 
     if (imageFiles.length === 0) {
-      alert('Please select image files only')
-      return
+      alert("Please select image files only");
+      return;
     }
 
     // Add new files to existing ones
-    const newFiles = [...files, ...imageFiles]
-    onFilesChange(newFiles)
-  }
+    const newFiles = [...files, ...imageFiles];
+    onFilesChange(newFiles);
+  };
 
   const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(true)
-  }
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
 
   const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(false)
-  }
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
 
   const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsDragging(false)
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
 
-    const fileList = e.dataTransfer.files
-    handleFiles(fileList)
-  }
+    const fileList = e.dataTransfer.files;
+    handleFiles(fileList);
+  };
 
   const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    handleFiles(e.target.files)
+    handleFiles(e.target.files);
     // Reset input so same file can be selected again
     if (fileInputRef.current) {
-      fileInputRef.current.value = ''
+      fileInputRef.current.value = "";
     }
-  }
+  };
 
   const removeFile = (index: number) => {
-    const newFiles = files.filter((_, i) => i !== index)
-    onFilesChange(newFiles)
-  }
+    const newFiles = files.filter((_, i) => i !== index);
+    onFilesChange(newFiles);
+  };
 
   const handleClick = () => {
-    fileInputRef.current?.click()
-  }
+    fileInputRef.current?.click();
+  };
 
   return (
-    <Card className={cn('w-full', className)}>
+    <Card className={cn("w-full", className)}>
       <CardHeader>
         <CardTitle>Upload Images</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent
+        className={cn(
+          "grid gap-6",
+          files.length > 0 ? "grid-cols-3" : "grid-cols-1"
+        )}
+      >
         {/* Drop Zone */}
         <div
           onDragOver={handleDragOver}
@@ -107,10 +112,10 @@ export function ImageUploader({
           onDrop={handleDrop}
           onClick={handleClick}
           className={cn(
-            'border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors',
+            "border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors flex flex-col items-center justify-center",
             isDragging
-              ? 'border-primary bg-primary/5'
-              : 'border-border hover:border-primary/50 hover:bg-muted/50'
+              ? "border-primary bg-primary/5"
+              : "border-border hover:border-primary/50 hover:bg-muted/50"
           )}
         >
           <input
@@ -132,17 +137,17 @@ export function ImageUploader({
 
         {/* File List */}
         {files.length > 0 && (
-          <div className="space-y-2">
+          <div className="space-y-2 col-span-2">
             <p className="text-sm font-medium">
-              {files.length} image{files.length !== 1 ? 's' : ''} uploaded
+              {files.length} image{files.length !== 1 ? "s" : ""} uploaded
             </p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+            <div className="flex flex-wrap gap-2">
               {files.map((file, index) => {
-                const previewUrl = previewUrls.get(file.name)
+                const previewUrl = previewUrls.get(file.name);
                 return (
                   <div
                     key={`${file.name}-${index}`}
-                    className="relative group aspect-square rounded-md overflow-hidden border border-border bg-muted"
+                    className="relative group aspect-square rounded-md overflow-hidden border border-border bg-muted w-18 h-18"
                   >
                     {previewUrl ? (
                       <img
@@ -157,8 +162,8 @@ export function ImageUploader({
                     )}
                     <button
                       onClick={(e) => {
-                        e.stopPropagation()
-                        removeFile(index)
+                        e.stopPropagation();
+                        removeFile(index);
                       }}
                       className="absolute top-1 right-1 size-6 rounded-full bg-destructive text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
                       aria-label={`Remove ${file.name}`}
@@ -169,7 +174,7 @@ export function ImageUploader({
                       {file.name}
                     </div>
                   </div>
-                )
+                );
               })}
             </div>
             <Button
@@ -184,5 +189,5 @@ export function ImageUploader({
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

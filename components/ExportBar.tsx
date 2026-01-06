@@ -1,20 +1,20 @@
-'use client'
+"use client";
 
-import * as React from 'react'
-import { DownloadIcon, LoaderIcon, CheckIcon } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { exportSingleImage, exportBulkImages } from '@/lib/exportEngine'
-import { processImagesInWorker } from '@/lib/workerUtils'
-import { applyFrame, loadImageFromFile } from '@/lib/frameEngine'
-import type { FrameConfig } from '@/types/frame'
-import { cn } from '@/lib/utils'
+import * as React from "react";
+import { DownloadIcon, LoaderIcon, CheckIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { exportSingleImage, exportBulkImages } from "@/lib/exportEngine";
+import { processImagesInWorker } from "@/lib/workerUtils";
+import { applyFrame, loadImageFromFile } from "@/lib/frameEngine";
+import type { FrameConfig } from "@/types/frame";
+import { cn } from "@/lib/utils";
 
 export interface ExportBarProps {
-  files: File[]
-  config: FrameConfig
-  disabled?: boolean
-  className?: string
+  files: File[];
+  config: FrameConfig;
+  disabled?: boolean;
+  className?: string;
 }
 
 export function ExportBar({
@@ -23,85 +23,93 @@ export function ExportBar({
   disabled = false,
   className,
 }: ExportBarProps) {
-  const [isProcessing, setIsProcessing] = React.useState(false)
-  const [progress, setProgress] = React.useState({ current: 0, total: 0 })
-  const [exportSuccess, setExportSuccess] = React.useState(false)
+  const [isProcessing, setIsProcessing] = React.useState(false);
+  const [progress, setProgress] = React.useState({ current: 0, total: 0 });
+  const [exportSuccess, setExportSuccess] = React.useState(false);
 
   const handleSingleExport = async () => {
-    if (files.length === 0) return
+    if (files.length === 0) return;
 
-    setIsProcessing(true)
-    setExportSuccess(false)
+    setIsProcessing(true);
+    setExportSuccess(false);
 
     try {
-      const firstFile = files[0]
-      const img = await loadImageFromFile(firstFile)
-      const blob = await applyFrame(img, config)
+      const firstFile = files[0];
+      const img = await loadImageFromFile(firstFile);
+      const blob = await applyFrame(img, config);
 
-      const baseName = firstFile.name.replace(/\.[^/.]+$/, '')
-      exportSingleImage(blob, baseName, config.format)
+      const baseName = firstFile.name.replace(/\.[^/.]+$/, "");
+      exportSingleImage(blob, baseName, config.format);
 
-      setExportSuccess(true)
-      setTimeout(() => setExportSuccess(false), 2000)
+      setExportSuccess(true);
+      setTimeout(() => setExportSuccess(false), 2000);
     } catch (error) {
-      console.error('Export failed:', error)
-      alert(`Export failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      console.error("Export failed:", error);
+      alert(
+        `Export failed: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     } finally {
-      setIsProcessing(false)
+      setIsProcessing(false);
     }
-  }
+  };
 
   const handleBulkExport = async () => {
-    if (files.length < 2) return
+    if (files.length < 2) return;
 
-    setIsProcessing(true)
-    setExportSuccess(false)
-    setProgress({ current: 0, total: files.length })
+    setIsProcessing(true);
+    setExportSuccess(false);
+    setProgress({ current: 0, total: files.length });
 
     try {
       const tasks = files.map((file, index) => ({
         id: `task-${index}`,
         file,
         config,
-      }))
+      }));
 
       const { results, errors } = await processImagesInWorker(
         tasks,
         (current, total) => {
-          setProgress({ current, total })
+          setProgress({ current, total });
         }
-      )
+      );
 
       if (errors.length > 0) {
-        console.warn('Some images failed to process:', errors)
+        console.warn("Some images failed to process:", errors);
         if (results.length === 0) {
-          throw new Error('All images failed to process')
+          throw new Error("All images failed to process");
         }
       }
 
       if (results.length > 0) {
-        const blobs = results.map((r) => r.blob)
-        const filenames = results.map((r) => r.filename)
-        await exportBulkImages(blobs, filenames)
+        const blobs = results.map((r) => r.blob);
+        const filenames = results.map((r) => r.filename);
+        await exportBulkImages(blobs, filenames);
 
-        setExportSuccess(true)
-        setTimeout(() => setExportSuccess(false), 2000)
+        setExportSuccess(true);
+        setTimeout(() => setExportSuccess(false), 2000);
       }
     } catch (error) {
-      console.error('Bulk export failed:', error)
-      alert(`Bulk export failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      console.error("Bulk export failed:", error);
+      alert(
+        `Bulk export failed: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
     } finally {
-      setIsProcessing(false)
-      setProgress({ current: 0, total: 0 })
+      setIsProcessing(false);
+      setProgress({ current: 0, total: 0 });
     }
-  }
+  };
 
-  const canExportSingle = files.length > 0 && !isProcessing && !disabled
-  const canExportBulk = files.length >= 2 && !isProcessing && !disabled
+  const canExportSingle = files.length > 0 && !isProcessing && !disabled;
+  const canExportBulk = files.length >= 2 && !isProcessing && !disabled;
 
   return (
-    <Card className={cn('w-full', className)}>
-      <CardContent className="pt-6">
+    <Card className={cn("w-full", className)}>
+      <CardContent>
         <div className="space-y-3">
           <Button
             onClick={handleSingleExport}
@@ -165,5 +173,5 @@ export function ExportBar({
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
