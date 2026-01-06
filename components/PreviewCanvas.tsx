@@ -96,7 +96,7 @@ export function PreviewCanvas({
         <CardTitle>Preview</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center justify-center min-h-[400px] bg-muted/30 rounded-lg border border-border">
+        <div className="flex items-center justify-center min-h-[400px] bg-muted/30 border border-border">
           {!imageFile ? (
             <div className="text-center text-muted-foreground">
               <ImageIcon className="mx-auto mb-2 size-12" />
@@ -117,8 +117,8 @@ export function PreviewCanvas({
               <img
                 src={previewUrl}
                 alt="Preview"
-                className="max-w-full max-h-[600px] shadow-lg object-contain"
-                style={{ imageRendering: "high-quality" }}
+                className="max-w-full max-h-[600px] object-contain"
+                style={{ imageRendering: "crisp-edges" }}
                 onError={(e) => {
                   console.error("Image failed to load:", previewUrl);
                   setError("Failed to display preview image");

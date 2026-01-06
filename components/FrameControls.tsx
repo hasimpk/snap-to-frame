@@ -151,56 +151,61 @@ export function FrameControls({
             </FieldContent>
           </Field>
 
-          {/* Fit Mode */}
-          <Field>
-            <FieldLabel>Fit Mode</FieldLabel>
-            <FieldContent>
-              <Select
-                value={config.fit}
-                onValueChange={(value) =>
-                  updateConfig({ fit: value as FitMode })
-                }
-                disabled={disabled}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="contain">Contain</SelectItem>
-                  <SelectItem value="cover">Cover</SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground mt-1">
-                {config.fit === "contain"
-                  ? "Image fits within frame"
-                  : "Image covers entire frame"}
-              </p>
-            </FieldContent>
-          </Field>
+          {/* Fit Mode and Background Color */}
+          <div className="grid grid-cols-2 gap-4">
+            <Field>
+              <FieldLabel>Fit Mode</FieldLabel>
+              <FieldContent>
+                <Select
+                  value={config.fit}
+                  onValueChange={(value) =>
+                    updateConfig({ fit: value as FitMode })
+                  }
+                  disabled={disabled}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="contain">Contain</SelectItem>
+                    <SelectItem value="cover">Cover</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {config.fit === "contain"
+                    ? "Image fits within frame"
+                    : "Image covers entire frame"}
+                </p>
+              </FieldContent>
+            </Field>
 
-          {/* Background Color */}
-          <Field>
-            <FieldLabel>Background Color</FieldLabel>
-            <FieldContent>
-              <div className="flex gap-2">
-                <Input
-                  type="color"
-                  value={config.background}
-                  onChange={(e) => updateConfig({ background: e.target.value })}
-                  disabled={disabled}
-                  className="h-9 w-20 cursor-pointer"
-                />
-                <Input
-                  type="text"
-                  value={config.background}
-                  onChange={(e) => updateConfig({ background: e.target.value })}
-                  disabled={disabled}
-                  placeholder="#ffffff"
-                  pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
-                />
-              </div>
-            </FieldContent>
-          </Field>
+            <Field>
+              <FieldLabel>Background Color</FieldLabel>
+              <FieldContent>
+                <div className="flex gap-2">
+                  <Input
+                    type="color"
+                    value={config.background}
+                    onChange={(e) =>
+                      updateConfig({ background: e.target.value })
+                    }
+                    disabled={disabled}
+                    className="h-9 w-20 cursor-pointer"
+                  />
+                  <Input
+                    type="text"
+                    value={config.background}
+                    onChange={(e) =>
+                      updateConfig({ background: e.target.value })
+                    }
+                    disabled={disabled}
+                    placeholder="#ffffff"
+                    pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
+                  />
+                </div>
+              </FieldContent>
+            </Field>
+          </div>
 
           {/* Padding */}
           <Field>
