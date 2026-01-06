@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { DownloadIcon, LoaderIcon, CheckIcon } from "lucide-react";
+import { DownloadIcon, LoaderIcon, CheckIcon, InfoIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { exportSingleImage, exportBulkImages } from "@/lib/exportEngine";
@@ -170,6 +170,13 @@ export function ExportBar({
               />
             </div>
           )}
+
+          <div className="flex items-start gap-2 p-3 bg-muted/50 rounded-md border border-border">
+            <InfoIcon className="size-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+            <p className="text-xs text-muted-foreground">
+              Image quality depends on the quality of the uploaded image. For best results, use high-resolution source images.
+            </p>
+          </div>
         </div>
       </CardContent>
     </Card>
