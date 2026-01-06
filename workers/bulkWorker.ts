@@ -40,23 +40,35 @@ async function applyFrameInWorker(
   imageData: ImageData,
   config: FrameConfig
 ): Promise<Blob> {
-  // Create OffscreenCanvas
-  const canvas = new OffscreenCanvas(config.width, config.height)
+  // Calculate shadow extent to ensure it's not clipped
+  const shadowExtent = config.shadow
+    ? Math.ceil(config.shadowSpread + Math.max(2, config.shadowSpread / 5))
+    : 0
+
+  // Create OffscreenCanvas with extra space for shadow if needed
+  const canvas = new OffscreenCanvas(
+    config.width + shadowExtent * 2,
+    config.height + shadowExtent * 2
+  )
   const ctx = canvas.getContext('2d')
 
   if (!ctx) {
     throw new Error('Failed to get 2D context from OffscreenCanvas')
   }
 
+  // Offset for shadow padding
+  const offsetX = shadowExtent
+  const offsetY = shadowExtent
+
   // Fill background first (no border radius on background)
   ctx.fillStyle = config.background
-  ctx.fillRect(0, 0, config.width, config.height)
+  ctx.fillRect(offsetX, offsetY, config.width, config.height)
 
   // Calculate image area (frame minus padding)
   const imageAreaWidth = config.width - config.padding * 2
   const imageAreaHeight = config.height - config.padding * 2
-  const imageAreaX = config.padding
-  const imageAreaY = config.padding
+  const imageAreaX = config.padding + offsetX
+  const imageAreaY = config.padding + offsetY
 
   // Create temporary canvas for the source image
   const sourceCanvas = new OffscreenCanvas(imageData.width, imageData.height)
@@ -280,7 +292,38 @@ async function applyFrameInWorker(
     ctx.restore()
   }
 
-  // Export as blob
+  // Export as blob - crop to original frame size if shadow was added
+  if (shadowExtent > 0) {
+    // Create a new canvas at the exact frame size
+    const outputCanvas = new OffscreenCanvas(config.width, config.height)
+    const outputCtx = outputCanvas.getContext('2d')
+
+    if (!outputCtx) {
+      throw new Error('Failed to get 2D context from output canvas')
+    }
+
+    // Draw the larger canvas onto the output canvas, cropping to frame size
+    outputCtx.drawImage(
+      canvas,
+      shadowExtent,
+      shadowExtent,
+      config.width,
+      config.height,
+      0,
+      0,
+      config.width,
+      config.height
+    )
+
+    const blob = await outputCanvas.convertToBlob({
+      type: config.format === 'jpg' ? 'image/jpeg' : 'image/png',
+      quality: 0.95,
+    })
+
+    return blob
+  }
+
+  // Export as blob (no shadow, no cropping needed)
   const blob = await canvas.convertToBlob({
     type: config.format === 'jpg' ? 'image/jpeg' : 'image/png',
     quality: 0.95,
