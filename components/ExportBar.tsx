@@ -4,11 +4,7 @@ import * as React from "react";
 import { DownloadIcon, LoaderIcon, CheckIcon, InfoIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Field,
-  FieldLabel,
-  FieldContent,
-} from "@/components/ui/field";
+import { Field, FieldLabel, FieldContent } from "@/components/ui/field";
 import {
   Select,
   SelectContent,
@@ -126,7 +122,7 @@ export function ExportBar({
 
   return (
     <Card className={cn("w-full border-border/50", className)}>
-      <CardHeader className="pb-4">
+      <CardHeader>
         <CardTitle className="text-xl">Export</CardTitle>
       </CardHeader>
       <CardContent>
@@ -213,7 +209,8 @@ export function ExportBar({
                 />
               </div>
               <p className="text-xs text-center text-muted-foreground font-medium">
-                {Math.round((progress.current / progress.total) * 100)}% complete
+                {Math.round((progress.current / progress.total) * 100)}%
+                complete
               </p>
             </div>
           )}
@@ -223,7 +220,8 @@ export function ExportBar({
               <InfoIcon className="size-4" />
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Image quality depends on the quality of the uploaded image. For best results, use high-resolution source images.
+              Image quality depends on the quality of the uploaded image. For
+              best results, use high-resolution source images.
             </p>
           </div>
         </div>

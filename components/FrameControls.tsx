@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { ColorPicker } from "@/components/ui/color-picker";
 import type {
   FrameConfig,
   FitMode,
@@ -79,8 +80,8 @@ export function FrameControls({
   }, [config.width, config.height]);
 
   return (
-    <Card className={cn("w-full border-border/50 sticky top-24", className)}>
-      <CardHeader className="pb-4">
+    <Card className={cn("w-full border-border/50", className)}>
+      <CardHeader>
         <CardTitle className="text-xl">Frame Settings</CardTitle>
       </CardHeader>
       <CardContent>
@@ -143,7 +144,9 @@ export function FrameControls({
                         max="10000"
                         value={config.height}
                         onChange={(e) =>
-                          updateConfig({ height: parseInt(e.target.value) || 1 })
+                          updateConfig({
+                            height: parseInt(e.target.value) || 1,
+                          })
                         }
                         disabled={disabled}
                         className="mt-1"
@@ -205,104 +208,78 @@ export function FrameControls({
                   </SelectContent>
                 </Select>
 
-                {config.backgroundType === 'solid' ? (
-                  <div className="flex gap-2">
-                    <Input
-                      type="color"
-                      value={config.background}
-                      onChange={(e) =>
-                        updateConfig({ background: e.target.value })
-                      }
-                      disabled={disabled}
-                      className="h-9 w-20 cursor-pointer"
-                    />
-                    <Input
-                      type="text"
-                      value={config.background}
-                      onChange={(e) =>
-                        updateConfig({ background: e.target.value })
-                      }
-                      disabled={disabled}
-                      placeholder="#ffffff"
-                      pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
-                    />
-                  </div>
+                {config.backgroundType === "solid" ? (
+                  <ColorPicker
+                    value={config.background}
+                    onChange={(value) => updateConfig({ background: value })}
+                    disabled={disabled}
+                    placeholder="#ffffff"
+                  />
                 ) : (
                   <div className="space-y-3">
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="flex gap-4 flex-wrap">
                       <div>
+                        <Label className="text-xs text-muted-foreground mb-1 block">
+                          Direction
+                        </Label>
+                        <Select
+                          value={config.backgroundGradientDirection}
+                          onValueChange={(value) =>
+                            updateConfig({
+                              backgroundGradientDirection: value as
+                                | "horizontal"
+                                | "vertical"
+                                | "diagonal",
+                            })
+                          }
+                          disabled={disabled}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="horizontal">
+                              Horizontal
+                            </SelectItem>
+                            <SelectItem value="vertical">Vertical</SelectItem>
+                            <SelectItem value="diagonal">Diagonal</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex-1">
                         <Label className="text-xs text-muted-foreground mb-1 block">
                           Start Color
                         </Label>
-                        <div className="flex gap-2">
-                          <Input
-                            type="color"
-                            value={config.backgroundGradientStart}
-                            onChange={(e) =>
-                              updateConfig({ backgroundGradientStart: e.target.value })
-                            }
-                            disabled={disabled}
-                            className="h-9 w-16 cursor-pointer"
-                          />
-                          <Input
-                            type="text"
-                            value={config.backgroundGradientStart}
-                            onChange={(e) =>
-                              updateConfig({ backgroundGradientStart: e.target.value })
-                            }
-                            disabled={disabled}
-                            placeholder="#ffffff"
-                            className="flex-1"
-                          />
-                        </div>
+                        <ColorPicker
+                          value={config.backgroundGradientStart}
+                          onChange={(value) =>
+                            updateConfig({
+                              backgroundGradientStart: value,
+                            })
+                          }
+                          disabled={disabled}
+                          placeholder="#ffffff"
+                          colorInputClassName="h-9 w-16 cursor-pointer"
+                          textInputClassName="flex-1"
+                        />
                       </div>
-                      <div>
+                      <div className="flex-1">
                         <Label className="text-xs text-muted-foreground mb-1 block">
                           End Color
                         </Label>
-                        <div className="flex gap-2">
-                          <Input
-                            type="color"
-                            value={config.backgroundGradientEnd}
-                            onChange={(e) =>
-                              updateConfig({ backgroundGradientEnd: e.target.value })
-                            }
-                            disabled={disabled}
-                            className="h-9 w-16 cursor-pointer"
-                          />
-                          <Input
-                            type="text"
-                            value={config.backgroundGradientEnd}
-                            onChange={(e) =>
-                              updateConfig({ backgroundGradientEnd: e.target.value })
-                            }
-                            disabled={disabled}
-                            placeholder="#f0f0f0"
-                            className="flex-1"
-                          />
-                        </div>
+                        <ColorPicker
+                          value={config.backgroundGradientEnd}
+                          onChange={(value) =>
+                            updateConfig({
+                              backgroundGradientEnd: value,
+                            })
+                          }
+                          disabled={disabled}
+                          placeholder="#f0f0f0"
+                          colorInputClassName="h-9 w-16 cursor-pointer"
+                          textInputClassName="flex-1"
+                        />
                       </div>
-                    </div>
-                    <div>
-                      <Label className="text-xs text-muted-foreground mb-1 block">
-                        Direction
-                      </Label>
-                      <Select
-                        value={config.backgroundGradientDirection}
-                        onValueChange={(value) =>
-                          updateConfig({ backgroundGradientDirection: value as 'horizontal' | 'vertical' | 'diagonal' })
-                        }
-                        disabled={disabled}
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="horizontal">Horizontal</SelectItem>
-                          <SelectItem value="vertical">Vertical</SelectItem>
-                          <SelectItem value="diagonal">Diagonal</SelectItem>
-                        </SelectContent>
-                      </Select>
                     </div>
                   </div>
                 )}
@@ -350,7 +327,9 @@ export function FrameControls({
                 <Switch
                   id="shadow"
                   checked={config.shadow}
-                  onCheckedChange={(checked) => updateConfig({ shadow: checked })}
+                  onCheckedChange={(checked) =>
+                    updateConfig({ shadow: checked })
+                  }
                   disabled={disabled}
                 />
               </FieldContent>
@@ -362,7 +341,9 @@ export function FrameControls({
                 <Switch
                   id="border"
                   checked={config.border}
-                  onCheckedChange={(checked) => updateConfig({ border: checked })}
+                  onCheckedChange={(checked) =>
+                    updateConfig({ border: checked })
+                  }
                   disabled={disabled}
                 />
               </FieldContent>
@@ -467,32 +448,16 @@ export function FrameControls({
               <Field>
                 <FieldLabel>Border Color</FieldLabel>
                 <FieldContent>
-                  <div className="flex gap-2">
-                    <Input
-                      type="color"
-                      value={config.borderColor}
-                      onChange={(e) =>
-                        updateConfig({ borderColor: e.target.value })
-                      }
-                      disabled={disabled}
-                      className="h-9 w-20 cursor-pointer"
-                    />
-                    <Input
-                      type="text"
-                      value={config.borderColor}
-                      onChange={(e) =>
-                        updateConfig({ borderColor: e.target.value })
-                      }
-                      disabled={disabled}
-                      placeholder="#000000"
-                      pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$"
-                    />
-                  </div>
+                  <ColorPicker
+                    value={config.borderColor}
+                    onChange={(value) => updateConfig({ borderColor: value })}
+                    disabled={disabled}
+                    placeholder="#000000"
+                  />
                 </FieldContent>
               </Field>
             </div>
           )}
-
         </FieldGroup>
       </CardContent>
     </Card>

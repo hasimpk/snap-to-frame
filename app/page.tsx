@@ -26,7 +26,7 @@ export default function Page() {
       </div>
 
       {/* Header */}
-      <header className="border-b border-border/50 bg-card/90 backdrop-blur-md sticky top-0 z-50">
+      <header className="border-b border-border/50 bg-card/90 backdrop-blur-md">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-5">
             <div className="flex items-center gap-4">
@@ -35,9 +35,9 @@ export default function Page() {
                   <ImageIcon className="size-6 text-primary" />
                 </div>
               </div>
-              <div className="space-y-0.5">
-                <h1 className="text-2xl font-bold tracking-tight">
-                  <span className="bg-gradient-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">
+              <div className="">
+                <h1 className="text-lg font-bold tracking-tight">
+                  <span className="bg-linear-to-r from-foreground via-foreground to-foreground/80 bg-clip-text text-transparent">
                     SnapToFrame
                   </span>
                 </h1>
@@ -92,8 +92,8 @@ export default function Page() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col items-center gap-2">
             <p className="text-center text-sm text-muted-foreground">
-              All image processing happens in your browser. Your files never leave
-              your device.
+              All image processing happens in your browser. Your files never
+              leave your device.
             </p>
             <div className="flex items-center gap-2 text-xs text-muted-foreground/70">
               <div className="size-1.5 rounded-full bg-green-500 animate-pulse" />

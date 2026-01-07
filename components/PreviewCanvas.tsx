@@ -92,18 +92,21 @@ export function PreviewCanvas({
 
   return (
     <Card className={cn("w-full border-border/50", className)}>
-      <CardHeader className="pb-4">
+      <CardHeader>
         <CardTitle className="text-xl">Preview</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex items-center justify-center min-h-[400px] bg-muted/40 border-2 border-dashed border-border rounded-xl relative overflow-hidden">
           {/* Grid pattern background */}
-          <div className="absolute inset-0 opacity-30 dark:opacity-10" style={{
-            backgroundImage: `linear-gradient(to right, currentColor 1px, transparent 1px),
+          <div
+            className="absolute inset-0 opacity-30 dark:opacity-10"
+            style={{
+              backgroundImage: `linear-gradient(to right, currentColor 1px, transparent 1px),
                               linear-gradient(to bottom, currentColor 1px, transparent 1px)`,
-            backgroundSize: '20px 20px',
-          }} />
-          
+              backgroundSize: "20px 20px",
+            }}
+          />
+
           <div className="relative z-10 w-full h-full flex items-center justify-center">
             {!imageFile ? (
               <div className="text-center text-muted-foreground space-y-3">
@@ -135,7 +138,7 @@ export function PreviewCanvas({
                   <img
                     src={previewUrl}
                     alt="Preview"
-                    className="max-w-full max-h-[600px] object-contain rounded-lg transition-transform duration-300 group-hover:scale-[1.02]"
+                    className="max-w-full max-h-[600px] object-contain transition-transform duration-300 group-hover:scale-[1.02]"
                     style={{ imageRendering: "crisp-edges" }}
                     onError={(e) => {
                       console.error("Image failed to load:", previewUrl);
@@ -158,10 +161,12 @@ export function PreviewCanvas({
         {previewUrl && !isLoading && !error && (
           <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
             <div className="px-3 py-1.5 rounded-full bg-muted/50 border border-border">
-              <span className="font-medium">Frame:</span> {config.width} × {config.height}px
+              <span className="font-medium">Frame:</span> {config.width} ×{" "}
+              {config.height}px
             </div>
             <div className="px-3 py-1.5 rounded-full bg-muted/50 border border-border">
-              <span className="font-medium">Format:</span> {config.format.toUpperCase()}
+              <span className="font-medium">Format:</span>{" "}
+              {config.format.toUpperCase()}
             </div>
           </div>
         )}
