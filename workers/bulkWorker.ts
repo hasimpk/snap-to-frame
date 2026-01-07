@@ -8,6 +8,10 @@ interface FrameConfig {
   width: number
   height: number
   background: string
+  backgroundType: 'solid' | 'gradient'
+  backgroundGradientStart: string
+  backgroundGradientEnd: string
+  backgroundGradientDirection: 'horizontal' | 'vertical' | 'diagonal'
   padding: number
   fit: 'contain' | 'cover'
   borderRadius: number
