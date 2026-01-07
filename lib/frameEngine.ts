@@ -32,7 +32,31 @@ export async function applyFrame(
   const offsetY = shadowExtent
 
   // Fill background first (no border radius on background)
-  ctx.fillStyle = config.background
+  if (config.backgroundType === 'gradient') {
+    const gradientStart = config.backgroundGradientStart || '#ffffff'
+    const gradientEnd = config.backgroundGradientEnd || '#f0f0f0'
+    const direction = config.backgroundGradientDirection || 'vertical'
+    
+    let gradient: CanvasGradient
+    const startX = offsetX
+    const startY = offsetY
+    const endX = offsetX + config.width
+    const endY = offsetY + config.height
+
+    if (direction === 'horizontal') {
+      gradient = ctx.createLinearGradient(startX, offsetY, endX, offsetY)
+    } else if (direction === 'vertical') {
+      gradient = ctx.createLinearGradient(offsetX, startY, offsetX, endY)
+    } else { // diagonal
+      gradient = ctx.createLinearGradient(startX, startY, endX, endY)
+    }
+
+    gradient.addColorStop(0, gradientStart)
+    gradient.addColorStop(1, gradientEnd)
+    ctx.fillStyle = gradient
+  } else {
+    ctx.fillStyle = config.background || '#ffffff'
+  }
   ctx.fillRect(offsetX, offsetY, config.width, config.height)
 
   // Calculate image area (frame minus padding)

@@ -91,52 +91,79 @@ export function PreviewCanvas({
   }, [previewUrl]);
 
   return (
-    <Card className={cn("w-full", className)}>
-      <CardHeader>
-        <CardTitle>Preview</CardTitle>
+    <Card className={cn("w-full border-border/50", className)}>
+      <CardHeader className="pb-4">
+        <CardTitle className="text-xl">Preview</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center justify-center min-h-[400px] bg-muted/30 border border-border">
-          {!imageFile ? (
-            <div className="text-center text-muted-foreground">
-              <ImageIcon className="mx-auto mb-2 size-12" />
-              <p className="text-sm">No image uploaded</p>
-              <p className="text-xs mt-1">Upload an image to see preview</p>
-            </div>
-          ) : isLoading ? (
-            <div className="text-center text-muted-foreground">
-              <LoaderIcon className="mx-auto mb-2 size-12 animate-spin" />
-              <p className="text-sm">Processing...</p>
-            </div>
-          ) : error ? (
-            <div className="text-center text-destructive">
-              <p className="text-sm">{error}</p>
-            </div>
-          ) : previewUrl ? (
-            <div className="w-full flex items-center justify-center">
-              <img
-                src={previewUrl}
-                alt="Preview"
-                className="max-w-full max-h-[600px] object-contain"
-                style={{ imageRendering: "crisp-edges" }}
-                onError={(e) => {
-                  console.error("Image failed to load:", previewUrl);
-                  setError("Failed to display preview image");
-                }}
-              />
-            </div>
-          ) : (
-            <div className="text-center text-muted-foreground">
-              <LoaderIcon className="mx-auto mb-2 size-12 animate-spin" />
-              <p className="text-sm">Preparing preview...</p>
-            </div>
-          )}
+        <div className="flex items-center justify-center min-h-[400px] bg-gradient-to-br from-muted/40 via-muted/20 to-muted/40 border-2 border-dashed border-border rounded-xl relative overflow-hidden">
+          {/* Grid pattern background */}
+          <div className="absolute inset-0 opacity-30 dark:opacity-10" style={{
+            backgroundImage: `linear-gradient(to right, currentColor 1px, transparent 1px),
+                              linear-gradient(to bottom, currentColor 1px, transparent 1px)`,
+            backgroundSize: '20px 20px',
+          }} />
+          
+          <div className="relative z-10 w-full h-full flex items-center justify-center">
+            {!imageFile ? (
+              <div className="text-center text-muted-foreground space-y-3">
+                <div className="mx-auto w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center">
+                  <ImageIcon className="size-8" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium">No image uploaded</p>
+                  <p className="text-xs mt-1">Upload an image to see preview</p>
+                </div>
+              </div>
+            ) : isLoading ? (
+              <div className="text-center text-muted-foreground space-y-3">
+                <div className="mx-auto w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+                  <LoaderIcon className="size-8 animate-spin text-primary" />
+                </div>
+                <p className="text-sm font-medium">Processing...</p>
+              </div>
+            ) : error ? (
+              <div className="text-center text-destructive space-y-3">
+                <div className="mx-auto w-16 h-16 rounded-2xl bg-destructive/10 flex items-center justify-center">
+                  <p className="text-2xl">⚠️</p>
+                </div>
+                <p className="text-sm font-medium">{error}</p>
+              </div>
+            ) : previewUrl ? (
+              <div className="w-full flex items-center justify-center p-4">
+                <div className="relative group">
+                  <img
+                    src={previewUrl}
+                    alt="Preview"
+                    className="max-w-full max-h-[600px] object-contain rounded-lg transition-transform duration-300 group-hover:scale-[1.02]"
+                    style={{ imageRendering: "crisp-edges" }}
+                    onError={(e) => {
+                      console.error("Image failed to load:", previewUrl);
+                      setError("Failed to display preview image");
+                    }}
+                  />
+                  <div className="absolute inset-0 rounded-lg bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                </div>
+              </div>
+            ) : (
+              <div className="text-center text-muted-foreground space-y-3">
+                <div className="mx-auto w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+                  <LoaderIcon className="size-8 animate-spin text-primary" />
+                </div>
+                <p className="text-sm font-medium">Preparing preview...</p>
+              </div>
+            )}
+          </div>
         </div>
         {previewUrl && !isLoading && !error && (
-          <p className="text-xs text-muted-foreground mt-2 text-center">
-            Frame: {config.width} × {config.height}px •{" "}
-            {config.format.toUpperCase()}
-          </p>
+          <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+            <div className="px-3 py-1.5 rounded-full bg-muted/50 border border-border">
+              <span className="font-medium">Frame:</span> {config.width} × {config.height}px
+            </div>
+            <div className="px-3 py-1.5 rounded-full bg-muted/50 border border-border">
+              <span className="font-medium">Format:</span> {config.format.toUpperCase()}
+            </div>
+          </div>
         )}
       </CardContent>
     </Card>

@@ -95,9 +95,9 @@ export function ImageUploader({
   };
 
   return (
-    <Card className={cn("w-full", className)}>
-      <CardHeader>
-        <CardTitle>Upload Images</CardTitle>
+    <Card className={cn("w-full border-border/50", className)}>
+      <CardHeader className="pb-5">
+        <CardTitle className="text-xl font-semibold">Upload Images</CardTitle>
       </CardHeader>
       <CardContent
         className={cn(
@@ -112,10 +112,10 @@ export function ImageUploader({
           onDrop={handleDrop}
           onClick={handleClick}
           className={cn(
-            "border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors flex flex-col items-center justify-center",
+            "border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all duration-300 flex flex-col items-center justify-center min-h-[220px] relative overflow-hidden group",
             isDragging
-              ? "border-primary bg-primary/5"
-              : "border-border hover:border-primary/50 hover:bg-muted/50"
+              ? "border-primary bg-primary/10 scale-[1.01] shadow-lg shadow-primary/10"
+              : "border-border/60 dark:border-border/40 bg-gradient-to-br from-muted/30 via-muted/20 to-muted/30 dark:from-muted/20 dark:via-muted/10 dark:to-muted/20 hover:border-primary/50"
           )}
         >
           <input
@@ -126,28 +126,79 @@ export function ImageUploader({
             onChange={handleFileInputChange}
             className="hidden"
           />
-          <UploadIcon className="mx-auto mb-2 size-8 text-muted-foreground" />
-          <p className="text-sm font-medium mb-1">
-            Drag and drop images here, or click to select
-          </p>
-          <p className="text-xs text-muted-foreground">
-            Supports multiple images
-          </p>
+          <div className="relative z-10 space-y-4">
+            <div className="flex justify-center">
+              <div className={cn(
+                "p-5 rounded-2xl transition-all duration-300 relative",
+                isDragging 
+                  ? "bg-primary/20 scale-110 shadow-lg shadow-primary/20" 
+                  : "bg-gradient-to-br from-muted to-muted/80 dark:from-muted/50 dark:to-muted/30 group-hover:bg-primary/10 group-hover:scale-105 group-hover:shadow-md"
+              )}>
+                <UploadIcon className={cn(
+                  "size-10 transition-all duration-300",
+                  isDragging ? "text-primary" : "text-muted-foreground group-hover:text-primary group-hover:scale-110"
+                )} />
+                {isDragging && (
+                  <div className="absolute inset-0 rounded-2xl bg-primary/20 animate-pulse" />
+                )}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <p className="text-base font-semibold text-foreground">
+                Drag and drop images here
+              </p>
+              <p className="text-sm text-muted-foreground">
+                or <span className="text-primary font-medium">click to browse</span>
+              </p>
+              <div className="flex items-center justify-center gap-2 pt-2">
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <div className="size-1.5 rounded-full bg-primary/60" />
+                  <span>PNG</span>
+                </div>
+                <div className="size-1 rounded-full bg-border" />
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <div className="size-1.5 rounded-full bg-primary/60" />
+                  <span>JPG</span>
+                </div>
+                <div className="size-1 rounded-full bg-border" />
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <div className="size-1.5 rounded-full bg-primary/60" />
+                  <span>WEBP</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          {isDragging && (
+            <div className="absolute inset-0 bg-primary/5 animate-pulse" />
+          )}
         </div>
 
         {/* File List */}
         {files.length > 0 && (
-          <div className="space-y-2 col-span-2">
-            <p className="text-sm font-medium">
-              {files.length} image{files.length !== 1 ? "s" : ""} uploaded
-            </p>
-            <div className="flex flex-wrap gap-2">
+          <div className="space-y-5 col-span-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="size-2 rounded-full bg-primary animate-pulse" />
+                <p className="text-sm font-semibold text-foreground">
+                  {files.length} image{files.length !== 1 ? "s" : ""} uploaded
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => onFilesChange([])}
+                className="h-8 text-xs"
+              >
+                Clear All
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-3">
               {files.map((file, index) => {
                 const previewUrl = previewUrls.get(file.name);
                 return (
                   <div
                     key={`${file.name}-${index}`}
-                    className="relative group aspect-square rounded-md overflow-hidden border border-border bg-muted w-18 h-18"
+                    className="relative group aspect-square rounded-xl overflow-hidden bg-white dark:bg-muted border border-border/60 dark:border-border w-24 h-24 transition-all duration-200 hover:scale-105 hover:border-primary/60 hover:shadow-md dark:hover:shadow-none"
                   >
                     {previewUrl ? (
                       <img
@@ -156,8 +207,8 @@ export function ImageUploader({
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <ImageIcon className="size-8 text-muted-foreground" />
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+                        <ImageIcon className="size-6 text-muted-foreground" />
                       </div>
                     )}
                     <button
@@ -165,26 +216,18 @@ export function ImageUploader({
                         e.stopPropagation();
                         removeFile(index);
                       }}
-                      className="absolute top-1 right-1 size-6 rounded-full bg-destructive text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                      className="absolute top-1.5 right-1.5 size-6 rounded-full bg-white dark:bg-destructive text-destructive dark:text-destructive-foreground opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center justify-center hover:scale-110 border border-border/50 dark:border-transparent shadow-sm"
                       aria-label={`Remove ${file.name}`}
                     >
                       <XIcon className="size-3" />
                     </button>
-                    <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-1 truncate">
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/70 to-black/40 dark:from-black/80 dark:via-black/60 dark:to-transparent text-white text-[10px] px-2.5 py-2 truncate font-medium backdrop-blur-[1px]">
                       {file.name}
                     </div>
                   </div>
                 );
               })}
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onFilesChange([])}
-              className="w-full"
-            >
-              Clear All
-            </Button>
           </div>
         )}
       </CardContent>
