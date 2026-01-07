@@ -1,4 +1,5 @@
 import type { FrameConfig } from '@/types/frame'
+import { sanitizeColor, validateColorOrThrow } from '@/lib/utils'
 
 /**
  * Pure function that applies a frame to an image using HTML Canvas 2D API.
@@ -32,7 +33,56 @@ export async function applyFrame(
   const offsetY = shadowExtent
 
   // Fill background first (no border radius on background)
-  ctx.fillStyle = config.background
+  if (config.backgroundType === 'gradient') {
+    const rawGradientStart = config.backgroundGradientStart || '#ffffff'
+    const rawGradientEnd = config.backgroundGradientEnd || '#f0f0f0'
+    const direction = config.backgroundGradientDirection || 'vertical'
+    
+    // Validate original colors before using them
+    try {
+      validateColorOrThrow(rawGradientStart, 'gradient start color')
+      validateColorOrThrow(rawGradientEnd, 'gradient end color')
+    } catch (error) {
+      throw error
+    }
+    
+    // Sanitize to ensure we have valid colors
+    const gradientStart = sanitizeColor(rawGradientStart, '#ffffff')
+    const gradientEnd = sanitizeColor(rawGradientEnd, '#f0f0f0')
+    
+    let gradient: CanvasGradient
+    const startX = offsetX
+    const startY = offsetY
+    const endX = offsetX + config.width
+    const endY = offsetY + config.height
+
+    if (direction === 'horizontal') {
+      gradient = ctx.createLinearGradient(startX, offsetY, endX, offsetY)
+    } else if (direction === 'vertical') {
+      gradient = ctx.createLinearGradient(offsetX, startY, offsetX, endY)
+    } else { // diagonal
+      gradient = ctx.createLinearGradient(startX, startY, endX, endY)
+    }
+
+    try {
+      gradient.addColorStop(0, gradientStart)
+      gradient.addColorStop(1, gradientEnd)
+    } catch (error) {
+      throw new Error(
+        `Invalid gradient color value. Please check your gradient start color ("${rawGradientStart}") and end color ("${rawGradientEnd}"). Colors must be valid hex codes (e.g., #ffffff) or other valid CSS color values.`
+      )
+    }
+    ctx.fillStyle = gradient
+  } else {
+    const rawBackground = config.background || '#ffffff'
+    try {
+      validateColorOrThrow(rawBackground, 'background color')
+      const backgroundColor = sanitizeColor(rawBackground, '#ffffff')
+      ctx.fillStyle = backgroundColor
+    } catch (error) {
+      throw error
+    }
+  }
   ctx.fillRect(offsetX, offsetY, config.width, config.height)
 
   // Calculate image area (frame minus padding)
@@ -176,7 +226,14 @@ export async function applyFrame(
     ctx.save()
     
     // Set border style
-    ctx.strokeStyle = config.borderColor
+    const rawBorderColor = config.borderColor
+    try {
+      validateColorOrThrow(rawBorderColor, 'border color')
+      const borderColor = sanitizeColor(rawBorderColor, '#000000')
+      ctx.strokeStyle = borderColor
+    } catch (error) {
+      throw error
+    }
     ctx.lineWidth = config.borderWidth
     
     // Apply border style

@@ -8,6 +8,10 @@ interface FrameConfig {
   width: number
   height: number
   background: string
+  backgroundType: 'solid' | 'gradient'
+  backgroundGradientStart: string
+  backgroundGradientEnd: string
+  backgroundGradientDirection: 'horizontal' | 'vertical' | 'diagonal'
   padding: number
   fit: 'contain' | 'cover'
   borderRadius: number
@@ -60,8 +64,91 @@ async function applyFrameInWorker(
   const offsetX = shadowExtent
   const offsetY = shadowExtent
 
+  // Helper function to validate color (worker-compatible, no DOM)
+  function isValidColor(color: string, context: OffscreenCanvasRenderingContext2D): boolean {
+    if (!color || typeof color !== 'string') {
+      return false
+    }
+    // Check for valid hex pattern
+    if (color.startsWith('#')) {
+      const hexPattern = /^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})$/
+      return hexPattern.test(color)
+    }
+    // For other color formats, try to set it and see if it works
+    try {
+      context.fillStyle = color
+      return context.fillStyle !== ''
+    } catch {
+      return false
+    }
+  }
+
+  function sanitizeColor(
+    color: string,
+    context: OffscreenCanvasRenderingContext2D,
+    fallback: string = '#ffffff'
+  ): string {
+    if (isValidColor(color, context)) {
+      return color
+    }
+    return isValidColor(fallback, context) ? fallback : '#ffffff'
+  }
+
   // Fill background first (no border radius on background)
-  ctx.fillStyle = config.background
+  if (config.backgroundType === 'gradient') {
+    const rawGradientStart = config.backgroundGradientStart || '#ffffff'
+    const rawGradientEnd = config.backgroundGradientEnd || '#f0f0f0'
+    const direction = config.backgroundGradientDirection || 'vertical'
+    
+    // Validate original colors before using them
+    if (!isValidColor(rawGradientStart, ctx)) {
+      throw new Error(
+        `Invalid gradient start color: "${rawGradientStart}". Please enter a valid color value (e.g., #ffffff, rgb(255,255,255), or a named color like "red").`
+      )
+    }
+    if (!isValidColor(rawGradientEnd, ctx)) {
+      throw new Error(
+        `Invalid gradient end color: "${rawGradientEnd}". Please enter a valid color value (e.g., #ffffff, rgb(255,255,255), or a named color like "red").`
+      )
+    }
+    
+    // Sanitize to ensure we have valid colors
+    const gradientStart = sanitizeColor(rawGradientStart, ctx, '#ffffff')
+    const gradientEnd = sanitizeColor(rawGradientEnd, ctx, '#f0f0f0')
+    
+    let gradient: CanvasGradient
+    const startX = offsetX
+    const startY = offsetY
+    const endX = offsetX + config.width
+    const endY = offsetY + config.height
+
+    if (direction === 'horizontal') {
+      gradient = ctx.createLinearGradient(startX, offsetY, endX, offsetY)
+    } else if (direction === 'vertical') {
+      gradient = ctx.createLinearGradient(offsetX, startY, offsetX, endY)
+    } else { // diagonal
+      gradient = ctx.createLinearGradient(startX, startY, endX, endY)
+    }
+
+    try {
+      gradient.addColorStop(0, gradientStart)
+      gradient.addColorStop(1, gradientEnd)
+    } catch (error) {
+      throw new Error(
+        `Invalid gradient color value. Please check your gradient start color ("${rawGradientStart}") and end color ("${rawGradientEnd}"). Colors must be valid hex codes (e.g., #ffffff) or other valid CSS color values.`
+      )
+    }
+    ctx.fillStyle = gradient
+  } else {
+    const rawBackground = config.background || '#ffffff'
+    if (!isValidColor(rawBackground, ctx)) {
+      throw new Error(
+        `Invalid background color: "${rawBackground}". Please enter a valid color value (e.g., #ffffff, rgb(255,255,255), or a named color like "red").`
+      )
+    }
+    const backgroundColor = sanitizeColor(rawBackground, ctx, '#ffffff')
+    ctx.fillStyle = backgroundColor
+  }
   ctx.fillRect(offsetX, offsetY, config.width, config.height)
 
   // Calculate image area (frame minus padding)
@@ -268,7 +355,14 @@ async function applyFrameInWorker(
     ctx.save()
     
     // Set border style
-    ctx.strokeStyle = config.borderColor
+    const rawBorderColor = config.borderColor
+    if (!isValidColor(rawBorderColor, ctx)) {
+      throw new Error(
+        `Invalid border color: "${rawBorderColor}". Please enter a valid color value (e.g., #000000, rgb(0,0,0), or a named color like "black").`
+      )
+    }
+    const borderColor = sanitizeColor(rawBorderColor, ctx, '#000000')
+    ctx.strokeStyle = borderColor
     ctx.lineWidth = config.borderWidth
     
     // Apply border style
