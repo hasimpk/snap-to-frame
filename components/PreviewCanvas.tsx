@@ -96,7 +96,7 @@ export function PreviewCanvas({
         <CardTitle className="text-xl">Preview</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center justify-center min-h-[400px] bg-gradient-to-br from-muted/40 via-muted/20 to-muted/40 border-2 border-dashed border-border rounded-xl relative overflow-hidden">
+        <div className="flex items-center justify-center min-h-[400px] bg-muted/40 border-2 border-dashed border-border rounded-xl relative overflow-hidden">
           {/* Grid pattern background */}
           <div className="absolute inset-0 opacity-30 dark:opacity-10" style={{
             backgroundImage: `linear-gradient(to right, currentColor 1px, transparent 1px),

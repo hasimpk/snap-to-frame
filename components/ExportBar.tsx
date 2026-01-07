@@ -218,7 +218,7 @@ export function ExportBar({
             </div>
           )}
 
-          <div className="flex items-start gap-3 p-4 bg-gradient-to-br from-primary/5 via-primary/5 to-transparent rounded-xl border border-primary/20">
+          <div className="flex items-start gap-3 p-4 bg-primary/5 rounded-xl border border-primary/20">
             <div className="p-1.5 rounded-lg bg-primary/10 text-primary flex-shrink-0">
               <InfoIcon className="size-4" />
             </div>

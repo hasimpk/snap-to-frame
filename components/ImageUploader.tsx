@@ -115,7 +115,7 @@ export function ImageUploader({
             "border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all duration-300 flex flex-col items-center justify-center min-h-[220px] relative overflow-hidden group",
             isDragging
               ? "border-primary bg-primary/10 scale-[1.01] shadow-lg shadow-primary/10"
-              : "border-border/60 dark:border-border/40 bg-gradient-to-br from-muted/30 via-muted/20 to-muted/30 dark:from-muted/20 dark:via-muted/10 dark:to-muted/20 hover:border-primary/50"
+              : "border-border/60 dark:border-border/40 bg-muted/30 dark:bg-muted/20 hover:border-primary/50"
           )}
         >
           <input
@@ -132,7 +132,7 @@ export function ImageUploader({
                 "p-5 rounded-2xl transition-all duration-300 relative",
                 isDragging 
                   ? "bg-primary/20 scale-110 shadow-lg shadow-primary/20" 
-                  : "bg-gradient-to-br from-muted to-muted/80 dark:from-muted/50 dark:to-muted/30 group-hover:bg-primary/10 group-hover:scale-105 group-hover:shadow-md"
+                  : "bg-muted dark:bg-muted/50 group-hover:bg-primary/10 group-hover:scale-105 group-hover:shadow-md"
               )}>
                 <UploadIcon className={cn(
                   "size-10 transition-all duration-300",
@@ -207,7 +207,7 @@ export function ImageUploader({
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+                      <div className="w-full h-full flex items-center justify-center bg-muted">
                         <ImageIcon className="size-6 text-muted-foreground" />
                       </div>
                     )}
@@ -216,10 +216,10 @@ export function ImageUploader({
                         e.stopPropagation();
                         removeFile(index);
                       }}
-                      className="absolute top-1.5 right-1.5 size-6 rounded-full bg-white dark:bg-destructive text-destructive dark:text-destructive-foreground opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center justify-center hover:scale-110 border border-border/50 dark:border-transparent shadow-sm"
+                      className="absolute top-1.5 right-1.5 size-6 rounded-full bg-white/95 dark:bg-black/80 backdrop-blur-sm text-destructive dark:text-white opacity-0 group-hover:opacity-100 transition-all duration-200 flex items-center justify-center hover:scale-110 hover:bg-white dark:hover:bg-black/90 border border-destructive/20 dark:border-white/20 shadow-md dark:shadow-lg z-10"
                       aria-label={`Remove ${file.name}`}
                     >
-                      <XIcon className="size-3" />
+                      <XIcon className="size-3.5 stroke-[2.5]" />
                     </button>
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/70 to-black/40 dark:from-black/80 dark:via-black/60 dark:to-transparent text-white text-[10px] px-2.5 py-2 truncate font-medium backdrop-blur-[1px]">
                       {file.name}
