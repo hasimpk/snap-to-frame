@@ -2,6 +2,8 @@
 
 A client-side web tool for framing images with custom sizes, styling, and effects. All image processing happens locally in your browser - your files never leave your device.
 
+Preview: [SnapToFrame](https://framesnap.hasim.me/)
+
 ## Features
 
 - 🖼️ **Image Upload**: Drag and drop or select multiple images
