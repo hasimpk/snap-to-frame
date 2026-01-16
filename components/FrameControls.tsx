@@ -26,7 +26,7 @@ import type {
   BorderStyle,
   BackgroundType,
 } from "@/types/frame";
-import { FRAME_PRESETS } from "@/types/frame";
+import { FRAME_PRESETS, FRAME_CONFIG_PRESETS } from "@/types/frame";
 import { cn } from "@/lib/utils";
 
 export interface FrameControlsProps {
@@ -44,9 +44,63 @@ export function FrameControls({
 }: FrameControlsProps) {
   const [preset, setPreset] = React.useState<string>("Square");
   const [isCustom, setIsCustom] = React.useState(false);
+  const [configPreset, setConfigPreset] = React.useState<string | null>(null);
+  const [isConfigCustom, setIsConfigCustom] = React.useState(true);
 
   const updateConfig = (updates: Partial<FrameConfig>) => {
     onConfigChange({ ...config, ...updates });
+  };
+
+  // Check if current config matches a preset (ignoring width/height)
+  const checkConfigPreset = React.useCallback((currentConfig: FrameConfig) => {
+    const configWithoutDimensions = {
+      background: currentConfig.background,
+      backgroundType: currentConfig.backgroundType,
+      backgroundGradientStart: currentConfig.backgroundGradientStart,
+      backgroundGradientEnd: currentConfig.backgroundGradientEnd,
+      backgroundGradientDirection: currentConfig.backgroundGradientDirection,
+      padding: currentConfig.padding,
+      fit: currentConfig.fit,
+      borderRadius: currentConfig.borderRadius,
+      shadow: currentConfig.shadow,
+      shadowSpread: currentConfig.shadowSpread,
+      border: currentConfig.border,
+      borderColor: currentConfig.borderColor,
+      borderWidth: currentConfig.borderWidth,
+      borderStyle: currentConfig.borderStyle,
+      format: currentConfig.format,
+    };
+
+    const matchingPreset = FRAME_CONFIG_PRESETS.find((p) => {
+      return Object.keys(configWithoutDimensions).every(
+        (key) =>
+          configWithoutDimensions[
+            key as keyof typeof configWithoutDimensions
+          ] === p.config[key as keyof typeof p.config]
+      );
+    });
+
+    return matchingPreset;
+  }, []);
+
+  const handleConfigPresetChange = (value: string) => {
+    if (value === "Custom") {
+      setIsConfigCustom(true);
+      setConfigPreset(null);
+      return;
+    }
+
+    setIsConfigCustom(false);
+    setConfigPreset(value);
+    const selectedPreset = FRAME_CONFIG_PRESETS.find((p) => p.name === value);
+    if (selectedPreset) {
+      // Apply preset config while preserving current width/height
+      updateConfig({
+        ...selectedPreset.config,
+        width: config.width,
+        height: config.height,
+      });
+    }
   };
 
   const handlePresetChange = (value: string) => {
@@ -79,13 +133,55 @@ export function FrameControls({
     }
   }, [config.width, config.height]);
 
+  // Sync config preset when config changes externally
+  // Note: We check all config properties except width/height to match presets
+  React.useEffect(() => {
+    const matchingPreset = checkConfigPreset(config);
+    if (matchingPreset) {
+      setConfigPreset(matchingPreset.name);
+      setIsConfigCustom(false);
+    } else {
+      setIsConfigCustom(true);
+      setConfigPreset(null);
+    }
+  }, [config, checkConfigPreset]);
+
   return (
     <Card className={cn("w-full border-border/50", className)}>
       <CardHeader>
         <CardTitle className="text-xl">Frame Settings</CardTitle>
       </CardHeader>
       <CardContent>
-        <FieldGroup className="space-y-6">
+        <FieldGroup className="">
+          {/* Configuration Preset */}
+          <Field>
+            <FieldLabel>Style Preset</FieldLabel>
+            <FieldContent>
+              <Select
+                value={isConfigCustom ? "Custom" : configPreset || "Custom"}
+                onValueChange={handleConfigPresetChange}
+                disabled={disabled}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {FRAME_CONFIG_PRESETS.map((p) => (
+                    <SelectItem key={p.name} value={p.name}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                  <SelectItem value="Custom">Custom</SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                {isConfigCustom
+                  ? "Custom configuration"
+                  : `Using ${configPreset} preset`}
+              </p>
+            </FieldContent>
+          </Field>
+
           {/* Frame Size and Fit Mode */}
           <div className="grid grid-cols-2 gap-4">
             <Field>
