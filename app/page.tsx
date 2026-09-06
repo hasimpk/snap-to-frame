@@ -99,6 +99,12 @@ export default function Page() {
               <div className="size-1.5 rounded-full bg-green-500 animate-pulse" />
               <span>100% Private & Secure</span>
             </div>
+            <a
+              href="https://webpify.hasim.me/"
+              className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
+            >
+              Need WebP conversion? Try WebPify &rarr;
+            </a>
           </div>
         </div>
       </footer>
